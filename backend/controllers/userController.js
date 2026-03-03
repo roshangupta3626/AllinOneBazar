@@ -6,8 +6,7 @@ import Session from "../models/sessionModel.js";
 import sendResetOTPEmail from "../emailVerify/sendOTPMail.js";
 import cloudinary from "../utils/cloudinary.js";
 
-
-export const register = async (req, res) => {c
+export const register = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
     if (!firstName || !lastName || !email || !password) {
@@ -18,20 +17,35 @@ export const register = async (req, res) => {c
     if (existingUser) return res.status(400).json({ success: false, message: "User already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 1. Create user first
     const user = await User.create({ firstName, lastName, email, password: hashedPassword });
 
+    // 2. Generate token
     const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "10m" });
-    await verifyEmail(token, email);
-
     user.token = token;
     await user.save();
 
-    res.status(201).json({ success: true, message: "User registered successfully", user });
+    // 3. Send email (Try/Catch this so slow email doesn't crash the signup)
+    try {
+      await verifyEmail(token, email);
+    } catch (mailError) {
+      console.error("Mail sending failed:", mailError);
+      // We don't return 500 here because the user is already created in DB
+    }
+
+    return res.status(201).json({ 
+      success: true, 
+      message: "User registered successfully. Please check your email.", 
+      user 
+    });
 
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// ... keep all your other functions (login, verify, etc.) exactly as they were
 
 export const verify = async (req, res) => {
   try {
