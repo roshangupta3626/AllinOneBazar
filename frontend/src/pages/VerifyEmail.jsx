@@ -17,7 +17,7 @@ const VerifyEmail = () => {
 
       // For GET request: send token as query parameter
       const res = await axios.get(
-        `http://localhost:8000/api/v1/user/verify?token=${token}`
+        `${import.meta.env.VITE_URL}/api/v1/user/verify?token=${token}`
       )
 
 

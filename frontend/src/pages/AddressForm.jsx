@@ -88,7 +88,7 @@ const AddressForm = () => {
       console.log("Sending order request:", { products, amount: total, tax, shipping });
 
       const { data } = await axios.post(
-        "http://localhost:8000/api/v1/order/create-order",
+        `${import.meta.env.VITE_URL}/api/v1/order/create-order`,
         {
           products,
           amount: total,
@@ -123,7 +123,7 @@ const AddressForm = () => {
         handler: async function (response) {
           try {
             const verifyRes = await axios.post(
-              "http://localhost:8000/api/v1/order/verify-payment",
+              `${import.meta.env.VITE_URL}/api/v1/order/verify-payment`,
               response,
               {
                 headers: { Authorization: `Bearer ${accessToken}` },
@@ -146,7 +146,7 @@ const AddressForm = () => {
           ondismiss: async function () {
             try {
               await axios.post(
-                "http://localhost:8000/api/v1/order/verify-payment",
+                `${import.meta.env.VITE_URL}/api/v1/order/verify-payment`,
                 { razorpay_order_id: data.order.id, paymentFailed: true },
                 { headers: { Authorization: `Bearer ${accessToken}` } }
               );

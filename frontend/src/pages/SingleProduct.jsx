@@ -1,33 +1,3 @@
-// import React from 'react'
-// import { useParams } from 'react-router-dom'
-// import { useSelector } from 'react-redux'
-// import Breadcrums from '@/components/Breadcrums'
-// import ProductImg from '@/components/ProductImg'
-// import ProductDesc from '@/components/ProductDesc'
-
-// const SingleProduct = () => {
-//     const { id } = useParams()
-//     const { products } = useSelector(store => store.product)
-//     const product = products.find((item) => item._id === id)
-
-//     if (!product) {
-//       return <div className="pt-20 text-center">Product not found</div>
-//     }
-
-//     return (
-//       <div className='pt-28 pb-10 max-w-7xl mx-auto px-4'>
-//         <Breadcrums product={product} />
-//         <div className='mt-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-start'>
-//           <ProductImg images={product?.productImg} /> 
-//           <ProductDesc product={product} />
-//         </div>
-//       </div>
-//     )
-// }
-
-// export default SingleProduct
-
-
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
@@ -56,7 +26,7 @@ const SingleProduct = () => {
       const fetchProduct = async () => {
         try {
           setLoading(true)
-          const res = await axios.get(`http://localhost:8000/api/v1/product/${id}`)
+          const res = await axios.get(`${import.meta.env.VITE_URL}/api/v1/product/${id}`)
           if (res.data.success) {
             setProduct(res.data.product)
             // Optionally, add to Redux store

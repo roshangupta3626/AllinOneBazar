@@ -35,11 +35,11 @@ const Navbar = () => {
 
         const [userRes, cartRes] = await Promise.all([
 
-          axios.get(`http://localhost:8000/api/v1/user/get-user/${userId}`, {
+          axios.get(`${import.meta.env.VITE_URL}/api/v1/user/get-user/${userId}`, {
             headers: { Authorization: `Bearer ${accessToken}` }
           }),
 
-          axios.get(`http://localhost:8000/api/v1/cart`, {
+          axios.get(`${import.meta.env.VITE_URL}/api/v1/cart`, {
             headers: { Authorization: `Bearer ${accessToken}` }
           })
 
@@ -77,7 +77,7 @@ const Navbar = () => {
       if (accessToken) {
 
         await axios.post(
-          "http://localhost:8000/api/v1/user/logout",
+          `${import.meta.env.VITE_URL}/api/v1/user/logout`,
           {},
           { headers: { Authorization: `Bearer ${accessToken}` } }
         )

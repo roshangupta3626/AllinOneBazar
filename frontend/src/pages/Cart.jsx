@@ -19,7 +19,7 @@ const Cart = () => {
   const updateQuantity = async (productId, type) => {
     try {
       const res = await axios.put(
-        "http://localhost:8000/api/v1/cart/update",
+        `${import.meta.env.VITE_URL}/api/v1/cart/update`,
         { productId, type },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -34,7 +34,7 @@ const Cart = () => {
 
   const removeItem = async (productId) => {
     try {
-      const res = await axios.delete("http://localhost:8000/api/v1/cart/remove", {
+      const res = await axios.delete(`${import.meta.env.VITE_URL}/api/v1/cart/remove`, {
         headers: { Authorization: `Bearer ${token}` },
         data: { productId },
         withCredentials: true,

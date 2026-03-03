@@ -81,7 +81,7 @@ const Profile = () => {
       if (file) data.append("file", file);
 
       const res = await axios.put(
-        `http://localhost:8000/api/v1/user/update/${user._id}`,
+        `${import.meta.env.VITE_URL}/api/v1/user/update/${user._id}`,
         data,
         { headers: { Authorization: `Bearer ${token}` } }
       );
