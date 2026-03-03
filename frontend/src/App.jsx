@@ -19,13 +19,13 @@ import AddProduct from '@/pages/admin/AddProduct'
 import AdminProduct from '@/pages/admin/AdminProduct'
 import AdminOrders from '@/pages/admin/AdminOrders'
 import AdminUsers from '@/pages/admin/AdminUsers'
-import ShowUserOrders from '@/pages/admin/ShowUSerOrders'
 import UserInfo from '@/pages/admin/UserInfo'
 import ProtectedRoute from '@/components/ui/ProtectedRoute'
 import SingleProduct from '@/pages/SingleProduct'
 import AddressForm from '@/pages/AddressForm'
 import OrderSuccess from '@/pages/OrderSuccess'
 import ForgotPassword from '@/pages/ForgotPassword'
+import ShowUserOrders from '@/pages/admin/ShowUserOrders'
 
 
 const App = () => {

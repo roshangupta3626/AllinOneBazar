@@ -37,7 +37,7 @@ const UserInfo = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/v1/user/get-user/${id}`,
+          `${import.meta.env.VITE_URL}/api/v1/user/get-user/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -94,7 +94,7 @@ const UserInfo = () => {
       if (file) data.append("file", file);
 
       const res = await axios.put(
-        `http://localhost:8000/api/v1/user/update/${id}`,
+        `${import.meta.env.VITE_URL}/api/v1/user/update/${id}`,
         data,
         { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
       );
