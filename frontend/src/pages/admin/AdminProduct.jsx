@@ -1,120 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import { toast } from "sonner";
-// import { useSelector, useDispatch } from "react-redux";
-// import { setProducts } from "../../redux/productSlice";
-
-// const AdminProduct = () => {
-
-//   const dispatch = useDispatch();
-//   const [loading, setLoading] = useState(true);
-//   const { products } = useSelector((state) => state.product);
-
-//   const fetchProducts = async () => {
-
-//     try {
-
-//       setLoading(true);
-
-//       const res = await axios.get(
-//         "http://localhost:8000/api/v1/product/getallproducts"
-//       );
-
-//       console.log("API RESPONSE:", res.data);
-
-//       if (res.data.success) {
-//         dispatch(setProducts(res.data.products));
-//         if (res.data.products.length > 0) {
-//           toast.success("Products loaded successfully");
-//         }
-//       } else {
-//         // API returned success: false (e.g., no products found)
-//         // This is not an error, just empty data
-//         console.log(res.data.message);
-//       }
-
-//     } catch (error) {
-
-//       console.log(error);
-//       toast.error(error.response?.data?.message || "Error loading products");
-
-//     } finally {
-
-//       setLoading(false);
-
-//     }
-
-//   };
-
-//   useEffect(() => {
-
-//     fetchProducts();
-
-//   }, []);
-
-//   return (
-
-//     <div className="p-10">
-
-//       <h1 className="text-2xl font-bold mb-5">
-
-//         Admin Products
-
-//       </h1>
-
-//       {
-
-//         loading
-
-//         ?
-
-//         <p>Loading products...</p>
-
-//         :
-
-//         products.length === 0
-
-//         ?
-
-//         <p>No Products Found</p>
-
-//         :
-
-//         products.map((product) => (
-
-//           <div
-//             key={product._id}
-//             className="border p-4 mb-3 rounded"
-//           >
-
-//             <h2 className="font-bold">
-
-//               {product.productName}
-
-//             </h2>
-
-//             <p>
-
-//               ₹{product.productPrice}
-
-//             </p>
-
-//           </div>
-
-//         ))
-
-//       }
-
-//     </div>
-
-//   );
-
-// };
-
-// export default AdminProduct;
-
-
-
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Search, Edit, Trash2 } from 'lucide-react';
@@ -159,7 +42,7 @@ const AdminProduct = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8000/api/v1/product/getallproducts");
+      const res = await axios.get(`${import.meta.env.VITE_URL}/api/v1/product/getallproducts`);
       if (res.data.success) {
         dispatch(setProducts(res.data.products));
       }
@@ -199,7 +82,7 @@ const AdminProduct = () => {
       .forEach((file) => formData.append("files", file));
 
     try {
-      const res = await axios.put(`http://localhost:8000/api/v1/product/update/${editProduct._id}`, formData, {
+      const res = await axios.put(`${import.meta.env.VITE_URL}/api/v1/product/update/${editProduct._id}`, formData, {
         headers: { 
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "multipart/form-data" 
@@ -218,7 +101,7 @@ const AdminProduct = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure?")) return;
     try {
-      const res = await axios.delete(`http://localhost:8000/api/v1/product/delete/${id}`, {
+      const res = await axios.delete(`${import.meta.env.VITE_URL}/api/v1/product/delete/${id}`, {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
       if (res.data.success) {
