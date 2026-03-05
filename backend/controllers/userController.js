@@ -26,12 +26,28 @@ export const register = async (req, res) => {
     user.token = token;
     await user.save();
 
-    // 3. Send email (Try/Catch this so slow email doesn't crash the signup)
+    // 3. Send email with detailed error logging
     try {
+      console.log("Attempting to send verification email...");
+      console.log("MAIL_USER:", process.env.MAIL_USER ? "SET" : "NOT SET");
+      console.log("MAIL_PASS:", process.env.MAIL_PASS ? "SET" : "NOT SET");
+      console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+      
       await verifyEmail(token, email);
+      console.log("Verification email sent successfully to:", email);
     } catch (mailError) {
-      console.error("Mail sending failed:", mailError);
-      // We don't return 500 here because the user is already created in DB
+      console.error("=== MAIL SENDING FAILED ===");
+      console.error("Error details:", mailError);
+      console.error("Error message:", mailError.message);
+      console.error("===========================");
+      
+      // Return a warning to the frontend so user knows email failed
+      return res.status(201).json({ 
+        success: true, 
+        warning: "User registered but verification email could not be sent. Please contact support.",
+        emailSent: false,
+        user 
+      });
     }
 
     return res.status(201).json({ 
@@ -91,7 +107,26 @@ export const reVerify = async (req, res) => {
     if (user.isVerified) return res.status(400).json({ success: false, message: "Email is already verified" });
 
     const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "10m" });
-    await verifyEmail(token, email);
+    
+    // Send email with detailed error logging
+    try {
+      console.log("Attempting to send re-verification email...");
+      console.log("MAIL_USER:", process.env.MAIL_USER ? "SET" : "NOT SET");
+      console.log("MAIL_PASS:", process.env.MAIL_PASS ? "SET" : "NOT SET");
+      
+      await verifyEmail(token, email);
+      console.log("Re-verification email sent successfully to:", email);
+    } catch (mailError) {
+      console.error("=== RE-VERIFY MAIL SENDING FAILED ===");
+      console.error("Error details:", mailError);
+      console.error("Error message:", mailError.message);
+      console.error("======================================");
+      
+      return res.status(500).json({ 
+        success: false, 
+        message: "Failed to send verification email. Please try again later." 
+      });
+    }
 
     user.token = token;
     await user.save();
@@ -196,7 +231,25 @@ export const forgotPassword = async (req, res) => {
         user.otpExpiry = otpExpiry;
         await user.save();
 
-        await sendResetOTPEmail(otp, email);
+        // Send OTP email with detailed error logging
+        try {
+          console.log("Attempting to send password reset OTP...");
+          console.log("MAIL_USER:", process.env.MAIL_USER ? "SET" : "NOT SET");
+          console.log("MAIL_PASS:", process.env.MAIL_PASS ? "SET" : "NOT SET");
+          
+          await sendResetOTPEmail(otp, email);
+          console.log("Password reset OTP sent successfully to:", email);
+        } catch (mailError) {
+          console.error("=== FORGOT PASSWORD MAIL SENDING FAILED ===");
+          console.error("Error details:", mailError);
+          console.error("Error message:", mailError.message);
+          console.error("===========================================");
+          
+          return res.status(500).json({ 
+            success: false, 
+            message: "Failed to send OTP email. Please try again later." 
+          });
+        }
         
         return res.status(200).json({ success: true, message: "OTP sent to email" });
 

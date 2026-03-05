@@ -2,6 +2,8 @@ import nodemailer from "nodemailer";
 import "dotenv/config";
 
 const sendResetOTPEmail = async (otp, email) => {
+  console.log("Creating OTP email transporter...");
+  
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -11,6 +13,12 @@ const sendResetOTPEmail = async (otp, email) => {
       pass: process.env.MAIL_PASS,
     },
   });
+
+  console.log("Verifying OTP SMTP connection...");
+  
+  // Verify connection before sending
+  await transporter.verify();
+  console.log("OTP SMTP connection verified!");
 
   const mailOptions = {
     from: process.env.MAIL_USER,
@@ -24,6 +32,7 @@ Best regards,
 Team AllinoneBazar`,
   };
 
+  console.log("Sending OTP email to:", email);
   await transporter.sendMail(mailOptions);
   console.log("Reset OTP email sent successfully");
 };

@@ -2,6 +2,8 @@ import nodemailer from "nodemailer";
 import "dotenv/config";
 
 const verifyEmail = async (token, email) => {
+  console.log("Creating email transporter...");
+  
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -12,6 +14,17 @@ const verifyEmail = async (token, email) => {
     }
   });
 
+  console.log("Verifying SMTP connection...");
+  
+  // Verify connection before sending
+  await transporter.verify();
+  console.log("SMTP connection verified!");
+
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const verificationLink = `${frontendUrl}/verify/${token}`;
+  
+  console.log("Verification link:", verificationLink);
+
   const mailOptions = {
     from: process.env.MAIL_USER,
     to: email,
@@ -19,12 +32,13 @@ const verifyEmail = async (token, email) => {
     text: `Welcome to AllinoneBazar!
 
 Thank you for registering. Please verify your email to start shopping:
-${process.env.FRONTEND_URL}/verify/${token}
+${verificationLink}
 
 Best regards,
 Team AllinoneBazar`
   };
 
+  console.log("Sending email to:", email);
   await transporter.sendMail(mailOptions);
   console.log("Email sent successfully");
 };
