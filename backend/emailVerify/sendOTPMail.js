@@ -43,37 +43,65 @@
 
 
 
-import { Resend } from "resend";
-import "dotenv/config";
+// import { Resend } from "resend";
+// import "dotenv/config";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
+
+// const sendResetOTPEmail = async (otp, email) => {
+
+//   try {
+//     const response = await resend.emails.send({
+//       from: "AllinoneBazar <onboarding@resend.dev>",
+//       to: email,
+//       subject: "AllinoneBazar Reset Password OTP",
+//       html: `
+//         <p>Dear User,</p>
+
+//         <p>You requested to reset your password.</p>
+
+//         <h2>${otp}</h2>
+
+//         <p>This OTP will expire in 10 minutes.</p>
+
+//         <br/>
+//         <p>Team AllinoneBazar</p>
+//       `,
+//     });
+
+//     console.log("OTP email sent:", response);
+
+//   } catch (error) {
+//     console.error("OTP email error:", error);
+//   }
+// };
+
+// export default sendResetOTPEmail;
+
+
+
+import transporter from "../utils/emailService.js";
 
 const sendResetOTPEmail = async (otp, email) => {
 
-  try {
-    const response = await resend.emails.send({
-      from: "AllinoneBazar <onboarding@resend.dev>",
-      to: email,
-      subject: "AllinoneBazar Reset Password OTP",
-      html: `
-        <p>Dear User,</p>
+  const mailOptions = {
+    from: `"AllinoneBazar" <${process.env.MAIL_USER}>`,
+    to: email,
+    subject: "AllinoneBazar Reset Password OTP",
+    html: `
+      <p>Dear User,</p>
 
-        <p>You requested to reset your password.</p>
+      <p>You requested to reset your password.</p>
 
-        <h2>${otp}</h2>
+      <h2>${otp}</h2>
 
-        <p>This OTP will expire in 10 minutes.</p>
+      <p>This OTP will expire in 10 minutes.</p>
 
-        <br/>
-        <p>Team AllinoneBazar</p>
-      `,
-    });
+      <p>Team AllinoneBazar</p>
+    `
+  };
 
-    console.log("OTP email sent:", response);
-
-  } catch (error) {
-    console.error("OTP email error:", error);
-  }
+  await transporter.sendMail(mailOptions);
 };
 
 export default sendResetOTPEmail;

@@ -49,44 +49,82 @@
 
 
 
-import { Resend } from "resend";
-import "dotenv/config";
+// import { Resend } from "resend";
+// import "dotenv/config";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
+
+// const verifyEmail = async (token, email) => {
+
+//   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+//   const verificationLink = `${frontendUrl}/verify/${token}`;
+
+//   try {
+//     const response = await resend.emails.send({
+//       from: "AllinoneBazar <onboarding@resend.dev>",
+//       to: email,
+//       subject: "AllinoneBazar Email Verification",
+//       html: `
+//         <h2>Welcome to AllinoneBazar</h2>
+//         <p>Thank you for registering.</p>
+//         <p>Please verify your email by clicking the button below:</p>
+
+//         <a href="${verificationLink}" 
+//         style="padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">
+//         Verify Email
+//         </a>
+
+//         <p>If the button doesn't work, click this link:</p>
+//         <p>${verificationLink}</p>
+
+//         <br/>
+//         <p>Team AllinoneBazar</p>
+//       `,
+//     });
+
+//     console.log("Verification email sent:", response);
+
+//   } catch (error) {
+//     console.error("Email error:", error);
+//   }
+// };
+
+// export default verifyEmail;
+
+
+
+
+
+import transporter from "../utils/emailService.js";
 
 const verifyEmail = async (token, email) => {
 
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const verificationLink = `${frontendUrl}/verify/${token}`;
 
-  try {
-    const response = await resend.emails.send({
-      from: "AllinoneBazar <onboarding@resend.dev>",
-      to: email,
-      subject: "AllinoneBazar Email Verification",
-      html: `
-        <h2>Welcome to AllinoneBazar</h2>
-        <p>Thank you for registering.</p>
-        <p>Please verify your email by clicking the button below:</p>
+  const mailOptions = {
+    from: `"AllinoneBazar" <${process.env.MAIL_USER}>`,
+    to: email,
+    subject: "AllinoneBazar Email Verification",
+    html: `
+      <h2>Welcome to AllinoneBazar</h2>
+      <p>Thank you for registering.</p>
 
-        <a href="${verificationLink}" 
-        style="padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">
-        Verify Email
-        </a>
+      <p>Please verify your email by clicking the button below:</p>
 
-        <p>If the button doesn't work, click this link:</p>
-        <p>${verificationLink}</p>
+      <a href="${verificationLink}"
+      style="padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">
+      Verify Email
+      </a>
 
-        <br/>
-        <p>Team AllinoneBazar</p>
-      `,
-    });
+      <p>If the button does not work:</p>
+      <p>${verificationLink}</p>
 
-    console.log("Verification email sent:", response);
+      <p>Team AllinoneBazar</p>
+    `
+  };
 
-  } catch (error) {
-    console.error("Email error:", error);
-  }
+  await transporter.sendMail(mailOptions);
 };
 
 export default verifyEmail;
