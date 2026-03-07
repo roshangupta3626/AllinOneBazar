@@ -6,8 +6,8 @@ const sendResetOTPEmail = async (otp, email) => {
   
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // Use SSL
+      port: 587,
+      secure: false,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS,
@@ -16,7 +16,7 @@ const sendResetOTPEmail = async (otp, email) => {
 
   console.log("Verifying OTP SMTP connection...");
   
-  // Verify connection before sending
+  // Verify connection before sendingx
   await transporter.verify();
   console.log("OTP SMTP connection verified!");
 
