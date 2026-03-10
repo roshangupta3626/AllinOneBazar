@@ -16,7 +16,6 @@
 
 //   console.log("Verifying OTP SMTP connection...");
   
-//   // Verify connection before sendingx
 //   await transporter.verify();
 //   console.log("OTP SMTP connection verified!");
 
@@ -42,66 +41,48 @@
 
 
 
+import nodemailer from "nodemailer";
+import { google } from "googleapis";
+import "dotenv/config";
 
-// import { Resend } from "resend";
-// import "dotenv/config";
+const oauth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  "https://developers.google.com/oauthplayground"
+);
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
-// const sendResetOTPEmail = async (otp, email) => {
-
-//   try {
-//     const response = await resend.emails.send({
-//       from: "AllinoneBazar <onboarding@resend.dev>",
-//       to: email,
-//       subject: "AllinoneBazar Reset Password OTP",
-//       html: `
-//         <p>Dear User,</p>
-
-//         <p>You requested to reset your password.</p>
-
-//         <h2>${otp}</h2>
-
-//         <p>This OTP will expire in 10 minutes.</p>
-
-//         <br/>
-//         <p>Team AllinoneBazar</p>
-//       `,
-//     });
-
-//     console.log("OTP email sent:", response);
-
-//   } catch (error) {
-//     console.error("OTP email error:", error);
-//   }
-// };
-
-// export default sendResetOTPEmail;
-
-
-
-import transporter from "../utils/emailService.js";
+oauth2Client.setCredentials({
+  refresh_token: process.env.REFRESH_TOKEN,
+});
 
 const sendResetOTPEmail = async (otp, email) => {
+  const accessToken = await oauth2Client.getAccessToken();
 
-  const mailOptions = {
-    from: `"AllinoneBazar" <${process.env.MAIL_USER}>`,
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: process.env.MAIL_USER,
+      clientId: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      refreshToken: process.env.REFRESH_TOKEN,
+      accessToken: accessToken.token,
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"AllinOneBazar" <${process.env.MAIL_USER}>`,
     to: email,
     subject: "AllinoneBazar Reset Password OTP",
     html: `
+      <h2>Password Reset OTP</h2>
       <p>Dear User,</p>
-
-      <p>You requested to reset your password.</p>
-
-      <h2>${otp}</h2>
-
-      <p>This OTP will expire in 10 minutes.</p>
-
-      <p>Team AllinoneBazar</p>
+      <p>Your OTP for password reset is:</p>
+      <h1 style="color:#f97316;letter-spacing:5px;">${otp}</h1>
+      <p>This OTP expires in 10 minutes.</p>
+      <p>Best regards, Team AllinoneBazar</p>
     `
-  };
-
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 export default sendResetOTPEmail;

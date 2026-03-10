@@ -16,7 +16,6 @@
 
 //   console.log("Verifying SMTP connection...");
   
-//   // Verify connection before sending
 //   await transporter.verify();
 //   console.log("SMTP connection verified!");
 
@@ -46,85 +45,54 @@
 // export default verifyEmail;
 
 
+import nodemailer from "nodemailer";
+import { google } from "googleapis";
+import "dotenv/config";
 
+const oauth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  "https://developers.google.com/oauthplayground"
+);
 
-
-// import { Resend } from "resend";
-// import "dotenv/config";
-
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
-// const verifyEmail = async (token, email) => {
-
-//   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-//   const verificationLink = `${frontendUrl}/verify/${token}`;
-
-//   try {
-//     const response = await resend.emails.send({
-//       from: "AllinoneBazar <onboarding@resend.dev>",
-//       to: email,
-//       subject: "AllinoneBazar Email Verification",
-//       html: `
-//         <h2>Welcome to AllinoneBazar</h2>
-//         <p>Thank you for registering.</p>
-//         <p>Please verify your email by clicking the button below:</p>
-
-//         <a href="${verificationLink}" 
-//         style="padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">
-//         Verify Email
-//         </a>
-
-//         <p>If the button doesn't work, click this link:</p>
-//         <p>${verificationLink}</p>
-
-//         <br/>
-//         <p>Team AllinoneBazar</p>
-//       `,
-//     });
-
-//     console.log("Verification email sent:", response);
-
-//   } catch (error) {
-//     console.error("Email error:", error);
-//   }
-// };
-
-// export default verifyEmail;
-
-
-
-
-
-import transporter from "../utils/emailService.js";
+oauth2Client.setCredentials({
+  refresh_token: process.env.REFRESH_TOKEN,
+});
 
 const verifyEmail = async (token, email) => {
+  const accessToken = await oauth2Client.getAccessToken();
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: process.env.MAIL_USER,
+      clientId: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      refreshToken: process.env.REFRESH_TOKEN,
+      accessToken: accessToken.token,
+    },
+  });
 
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const verificationLink = `${frontendUrl}/verify/${token}`;
 
-  const mailOptions = {
-    from: `"AllinoneBazar" <${process.env.MAIL_USER}>`,
+  await transporter.sendMail({
+    from: `"AllinOneBazar" <${process.env.MAIL_USER}>`,
     to: email,
     subject: "AllinoneBazar Email Verification",
     html: `
-      <h2>Welcome to AllinoneBazar</h2>
-      <p>Thank you for registering.</p>
-
-      <p>Please verify your email by clicking the button below:</p>
-
-      <a href="${verificationLink}"
-      style="padding:10px 20px;background:#000;color:#fff;text-decoration:none;border-radius:5px;">
-      Verify Email
+      <h2>Welcome to AllinOneBazar!</h2>
+      <p>Thank you for registering. Please verify your email:</p>
+      <a href="${verificationLink}" 
+         style="background:#f97316;color:white;padding:10px 20px;
+         border-radius:5px;text-decoration:none;">
+         Verify Email
       </a>
-
-      <p>If the button does not work:</p>
-      <p>${verificationLink}</p>
-
-      <p>Team AllinoneBazar</p>
+      <p>This link expires in 10 minutes.</p>
+      <p>Best regards, Team AllinoneBazar</p>
     `
-  };
-
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 export default verifyEmail;

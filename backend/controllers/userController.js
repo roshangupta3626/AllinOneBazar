@@ -6,6 +6,9 @@ import Session from "../models/sessionModel.js";
 import sendResetOTPEmail from "../emailVerify/sendOTPMail.js";
 import cloudinary from "../utils/cloudinary.js";
 
+
+
+
 export const register = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -18,30 +21,16 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // 1. Create user first
     const user = await User.create({ firstName, lastName, email, password: hashedPassword });
 
-    // 2. Generate token
     const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "10m" });
     user.token = token;
     await user.save();
 
-    // 3. Send email with detailed error logging
     try {
-      console.log("Attempting to send verification email...");
-      console.log("MAIL_USER:", process.env.MAIL_USER ? "SET" : "NOT SET");
-      console.log("MAIL_PASS:", process.env.MAIL_PASS ? "SET" : "NOT SET");
-      console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
-      
       await verifyEmail(token, email);
-      console.log("Verification email sent successfully to:", email);
     } catch (mailError) {
-      console.error("=== MAIL SENDING FAILED ===");
-      console.error("Error details:", mailError);
-      console.error("Error message:", mailError.message);
-      console.error("===========================");
-      
-      // Return a warning to the frontend so user knows email failed
+      console.error("Mail error:", mailError.message);
       return res.status(201).json({ 
         success: true, 
         warning: "User registered but verification email could not be sent. Please contact support.",
@@ -61,11 +50,67 @@ export const register = async (req, res) => {
   }
 };
 
-// ... keep all your other functions (login, verify, etc.) exactly as they were
+
+// export const register = async (req, res) => {
+//   try {
+//     const { firstName, lastName, email, password } = req.body;
+//     if (!firstName || !lastName || !email || !password) {
+//       return res.status(400).json({ success: false, message: "All fields are required" });
+//     }
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) return res.status(400).json({ success: false, message: "User already exists" });
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+    
+//     const user = await User.create({ firstName, lastName, email, password: hashedPassword });
+
+
+//     const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "10m" });
+//     user.token = token;
+//     await user.save();
+
+
+//     try {
+//       console.log("Attempting to send verification email...");
+//       console.log("MAIL_USER:", process.env.MAIL_USER ? "SET" : "NOT SET");
+//       console.log("MAIL_PASS:", process.env.MAIL_PASS ? "SET" : "NOT SET");
+//       console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+      
+//       await verifyEmail(token, email);
+//       console.log("Verification email sent successfully to:", email);
+//     } catch (mailError) {
+//       console.error("=== MAIL SENDING FAILED ===");
+//       console.error("Error details:", mailError);
+//       console.error("Error message:", mailError.message);
+//       console.error("===========================");
+      
+//       return res.status(201).json({ 
+//         success: true, 
+//         warning: "User registered but verification email could not be sent. Please contact support.",
+//         emailSent: false,
+//         user 
+//       });
+//     }
+
+//     return res.status(201).json({ 
+//       success: true, 
+//       message: "User registered successfully. Please check your email.", 
+//       user 
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+
+
+
+
 
 export const verify = async (req, res) => {
   try {
-    // Get token from query parameter (for GET request from email link)
     const token = req.query.token;
     
     if (!token) {
